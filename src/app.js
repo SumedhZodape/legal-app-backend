@@ -1,7 +1,7 @@
 import express from 'express';
 import clientRouter from './routes/client.js';
 import lawyerRouter from './routes/lawyer.js';
-import authRouter from './routes/auth.js';
+import authRouter from './routes/authRouter.js';
 
 const app = express();
 

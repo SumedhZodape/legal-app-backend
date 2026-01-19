@@ -13,7 +13,12 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true,
             minLength: 4,
-            maxLength: 30
+            maxLength: 30,
+            unique: true,
+            match: [
+                /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+                'Please enter a valid email address.'
+            ]
         },
         Phone: {
             type: String,
@@ -43,14 +48,14 @@ const UserSchema = new mongoose.Schema(
 
 
 // password encrypt logic
-UserSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function () {
     // logic - to encrypt the pass
 
     console.log(this)
 
     // condition for if we are not updaing password then no need to hash
-    if(!this.isModified('password')){ 
-        return next();
+    if (!this.isModified('password')) {
+        return;
     }
 
     // encrypt logic - (registration, forget pass)
@@ -58,13 +63,15 @@ UserSchema.pre('save', async function (next) {
 
     this.password = await bcrypt.hash(this.password, salt)
 
-    next()
-
-
 
 })
 
 
+
+// login method
+UserSchema.methods.comparePassword = async function (enterPassword) {
+    return await bcrypt.compare(enterPassword, this.password)
+}
 
 
 
