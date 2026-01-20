@@ -2,6 +2,7 @@ import express from 'express';
 import clientRouter from './routes/client.js';
 import lawyerRouter from './routes/lawyer.js';
 import authRouter from './routes/authRouter.js';
+import adminRouter from './routes/adminRouter.js'
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json())
 app.use("/client", clientRouter);
 app.use("/lawyer", lawyerRouter);
 app.use("/auth", authRouter)
+app.use("/admin", adminRouter)
 
 
 // http://localhost:8000/client/getclientdata
