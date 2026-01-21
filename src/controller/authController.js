@@ -1,22 +1,23 @@
+import LawyerProfileModel from '../models/LawyerProfile.js';
 import UserModel from '../models/Users.js';
 import { generateToken } from '../utils/generateToken.js';
 import bcrypt from 'bcrypt'
 
 
-export const Register = async(req, res) =>{
+export const Register = async (req, res) => {
     // logic
 
     let { name, email, Phone, password, role } = req.body;
 
-    if(!name || !email || !Phone || !password || !role){
-        return res.status(400).json({ message:"All fileds are required!" })
+    if (!name || !email || !Phone || !password || !role) {
+        return res.status(400).json({ message: "All fileds are required!" })
     }
 
     try {
         const existingUser = await UserModel.findOne({ email: email });
 
-        if(existingUser){
-            return res.status(400).json({message:"User already exist!"})
+        if (existingUser) {
+            return res.status(400).json({ message: "User already exist!" })
         }
 
         const user = await UserModel.create({
@@ -28,7 +29,7 @@ export const Register = async(req, res) =>{
         })
 
         res.status(201).json({
-            message:"User Registered successfully!",
+            message: "User Registered successfully!",
             result: {
                 _id: user._id,
                 name,
@@ -38,36 +39,53 @@ export const Register = async(req, res) =>{
         })
 
     } catch (error) {
-        res.status(500).json({message: "Server Error", error})
+        res.status(500).json({ message: "Server Error", error })
     }
 
 
 }
 
-export const Login = async(req, res)=>{
+export const Login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    if(!email || !password){
-        return res.status(400).json({message: "Email and Password are required!"})
+    if (!email || !password) {
+        return res.status(400).json({ message: "Email and Password are required!" })
     }
 
     try {
 
-        const existingUser = await UserModel.findOne({email})
-    
-        if(!existingUser){
-            return res.status(400).json({message: "Invalid email!"})
+        const existingUser = await UserModel.findOne({ email })
+
+        if (!existingUser) {
+            return res.status(400).json({ message: "Invalid email!" })
         }
-    
+
         const isMatch = await bcrypt.compare(password, existingUser.password)
 
-        if(!isMatch){
-            return res.status(404).json({message:"Invalid Password!"})
+        if (!isMatch) {
+            return res.status(404).json({ message: "Invalid Password!" })
         }
 
+
+
+        if(existingUser.role === "LAWYER"){
+            
+            const LawyerProfile = await LawyerProfileModel.findOne({userId: existingUser._id});
+
+            if(!LawyerProfile){
+                return res.status(400).json({ message: "Please Complete your profile!" })
+            }
+
+            if(LawyerProfile.status !== "APPROVED"){
+                return res.status(400).json({ message: `Status: ${LawyerProfile.status}. Please contact to admin department.` })
+            }
+
+        }
+
+
         res.status(200).json({
-            message:"Login Successfully!",
+            message: "Login Successfully!",
             token: generateToken(existingUser._id, existingUser.email),
             result: {
                 _id: existingUser._id,
@@ -76,10 +94,10 @@ export const Login = async(req, res)=>{
                 role: existingUser.role
             }
         })
-        
+
     } catch (error) {
         console.log(error)
-        res.status(500).json({message:"Server Error", error})
+        res.status(500).json({ message: "Server Error", error })
     }
 
 

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import UserModel from '../models/Users.js'
+import UserModel from '../models/Users.js';
 
 const Protect = async (req, res, next) => {
     console.log(req.headers.authorization)
@@ -19,22 +19,24 @@ const Protect = async (req, res, next) => {
             if (!user) {
                 return res.status(401).json({
                     message: "User Not Found"
-                })
+                }) 
             }
+
+          
 
             next()
 
         }
     } catch (error) {
         res.status(401).json({
-            message:"Not Authorized!"
+            message: "Not Authorized!"
         })
     }
 
 
-    if(!token){
+    if (!token) {
         res.status(401).json({
-            message:"Please enter valid token"
+            message: "Please enter valid token"
         })
     }
 
