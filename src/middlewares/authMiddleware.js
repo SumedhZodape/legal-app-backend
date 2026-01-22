@@ -22,8 +22,6 @@ const Protect = async (req, res, next) => {
                 }) 
             }
 
-          
-
             next()
 
         }
