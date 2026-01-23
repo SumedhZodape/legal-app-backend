@@ -1,5 +1,5 @@
 import express from 'express';
-import clientRouter from './routes/client.js';
+import clientRouter from './routes/clientRouter.js';
 import lawyerRouter from './routes/lawyerRouter.js';
 import authRouter from './routes/authRouter.js';
 import adminRouter from './routes/adminRouter.js'
