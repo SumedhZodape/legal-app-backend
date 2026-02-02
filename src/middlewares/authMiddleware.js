@@ -12,7 +12,8 @@ const Protect = async (req, res, next) => {
             token = req.headers?.authorization?.split(" ")[1];
 
             const decode = await jwt.verify(token, "fdiuw894hrkejd9oig43");
-            console.log(decode)
+
+            req.user = decode._id;
 
             const user = await UserModel.findById(decode._id);
 

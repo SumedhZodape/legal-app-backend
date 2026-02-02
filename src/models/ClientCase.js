@@ -9,7 +9,8 @@ const ClientCaseSchema = new mongoose.Schema(
         },
         problemStatement: {
             type: String,
-            minLength: 100
+            minLength: 60,
+            required: true
         },
         location: {
             type: String,
@@ -22,11 +23,9 @@ const ClientCaseSchema = new mongoose.Schema(
             {
                fileName: {
                 type: String,
-                required: true
                },
                fileURL: {
                 type: String,
-                required: true
                } 
             }
         ],
