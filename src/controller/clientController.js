@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import ClientCaseModel from "../models/ClientCase.js";
+import AianalysisModel from "../models/Aianalysis.js";
 
 export const AITest = async (req, res) => {
 
@@ -54,7 +55,7 @@ export const CreateCase = async (req, res) => {
         console.log("Request is coming")
 
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyCLmQB51eUcCriGxByWIRluCom6qeLFTvU",
+            apiKey: "AIzaSyA8clyaEFDtVLPoV0HSow1v4HPDyNvIGNA",
         });
 
         const promt =`
@@ -70,7 +71,8 @@ export const CreateCase = async (req, res) => {
         "wrostCaseOutcome":"",
         "estimatedFeeMin": number,
         "estimatedFeeMax": number,
-        "remark":""
+        "remark":"",
+        "TypeOfLawyerNeeded":""
         }
         `
 
@@ -83,12 +85,24 @@ export const CreateCase = async (req, res) => {
             },
         });
 
-        console.log(response)
+        console.log(response) 
 
         const aiResponse = response?.candidates[0]?.content?.parts[0]?.text;
         const parsedRes = JSON.parse(aiResponse)
 
-        res.status(200).json({message:"Test", result: parsedRes, caseInfo})
+
+        const aiInfo = await AianalysisModel.create({
+            clientCaseId: caseInfo._id,
+            predictedCaseType: parsedRes?.predictedCaseType,
+            caseSeverity: parsedRes?.caseSeverity,
+            suggestedIPCSections: parsedRes?.suggestedIPSSections,
+            wrostCaseOutcome: parsedRes?.wrostCaseOutcome,
+            estimatedFeeMin: parsedRes?.estimatedFeeMin,
+            estimatedFeeMax: parsedRes?.estimatedFeeMax,
+            remark: parsedRes?.remark,
+        })
+
+        res.status(200).json({message:"Case has been created", result: parsedRes, caseInfo})
 
 
     } catch (error) {
