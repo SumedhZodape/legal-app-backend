@@ -14,6 +14,7 @@ export const GetAllLawyers = async (req, res) => {
 
 
 export const UpdateLawyerStatus = async (req, res) => {
+  console.log("hello")
     try {
 
         console.log("Testing")

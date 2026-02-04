@@ -1,6 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 import ClientCaseModel from "../models/ClientCase.js";
 import AianalysisModel from "../models/Aianalysis.js";
+import LawyerProfileModel from "../models/LawyerProfile.js";
+
 
 export const AITest = async (req, res) => {
 
@@ -55,7 +57,7 @@ export const CreateCase = async (req, res) => {
         console.log("Request is coming")
 
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyA8clyaEFDtVLPoV0HSow1v4HPDyNvIGNA",
+            apiKey: "AIzaSyDBb1a8GUhy7RgN0Fo9RyYGJs6Ydu4US0E",
         });
 
         const promt =`
@@ -72,7 +74,7 @@ export const CreateCase = async (req, res) => {
         "estimatedFeeMin": number,
         "estimatedFeeMax": number,
         "remark":"",
-        "TypeOfLawyerNeeded":""
+        "TypeOfLawyerNeeded":"Criminal" | "Civil" | "Family" | "Corporate" | "Cyber" | "Property"
         }
         `
 
@@ -91,6 +93,23 @@ export const CreateCase = async (req, res) => {
         const parsedRes = JSON.parse(aiResponse)
 
 
+        /// find out the lawyers list
+
+
+        const lawyersData = await LawyerProfileModel.find({
+            lawyerType: parsedRes?.TypeOfLawyerNeeded,
+            status: "APPROVED",
+            feeMin: { $lte: parsedRes?.estimatedFeeMax },
+            feeMax: { $gte: parsedRes?.estimatedFeeMin }
+        }).sort({wonCases: -1}).limit(5).select("userId")
+
+
+        console.log(lawyersData)
+
+        const mapData = lawyersData?.map((ele)=>ele.userId)
+
+      
+
         const aiInfo = await AianalysisModel.create({
             clientCaseId: caseInfo._id,
             predictedCaseType: parsedRes?.predictedCaseType,
@@ -100,9 +119,10 @@ export const CreateCase = async (req, res) => {
             estimatedFeeMin: parsedRes?.estimatedFeeMin,
             estimatedFeeMax: parsedRes?.estimatedFeeMax,
             remark: parsedRes?.remark,
+            suggestedLawyers: mapData
         })
 
-        res.status(200).json({message:"Case has been created", result: parsedRes, caseInfo})
+        res.status(200).json({message:"Case has been created", result: parsedRes, caseInfo, lawyersData})
 
 
     } catch (error) {

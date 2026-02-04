@@ -5,7 +5,7 @@ const AIAnalysisSchema = new mongoose.Schema(
     {
         clientCaseId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref:"Clientcase"
+            ref: "Clientcase"
         },
         predictedCaseType: {
             type: String
@@ -26,20 +26,15 @@ const AIAnalysisSchema = new mongoose.Schema(
         },
         suggestedLawyers: [
             {
-                lawyerId: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "User"
-                },
-                score: {
-                    type: Number
-                }
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
             }
         ],
         remark: {
             type: String
         }
     },
-    { timestamps:true }
+    { timestamps: true }
 )
 
 export default mongoose.model("Aianalys", AIAnalysisSchema)
