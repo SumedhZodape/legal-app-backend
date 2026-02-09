@@ -45,19 +45,36 @@ export const CreateCase = async (req, res) => {
         if (problemStatement?.trim() === "") {
             return res.status(400).json({ message: "Problem statement is required!" })
         }
+
+
+        console.log(req.files)
+
+        let proofFiles = []
+
+        if(req.files && req.files.length > 0){
+            proofFiles = req.files?.map(ele=>({
+                fileName: ele.originalname,
+                fileURL: `uploads/${ele.filename}`
+            }))
+        }
+
+        console.log("proofFiles", proofFiles)
+
+
         
 
         const caseInfo = await ClientCaseModel.create({
             userId,
             problemStatement,
             location,
-            caseDate
+            caseDate,
+            proofFiles
         })
 
         console.log("Request is coming")
 
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyDBb1a8GUhy7RgN0Fo9RyYGJs6Ydu4US0E",
+            apiKey: "AIzaSyAZWXofR8pwVzjmpgkm8jv7OOXdN6L93QE",
         });
 
         const promt =`
