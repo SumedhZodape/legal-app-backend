@@ -8,8 +8,8 @@ export const sendMail = async (to, subject, text, html) => {
         const trasporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "sumedhzodape143@gmail.com",
-                pass: "npdo wmzu anqw zchq"
+                user: process.env.USER_MAIL,
+                pass: process.env.PASS
             }
         })
         console.log("dfsdfd")

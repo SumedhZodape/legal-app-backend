@@ -50,7 +50,7 @@ export const Login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(400).json({ message: "Email and Password are required!" })
+        return res.status(400).json({ success: false, message: "Email and Password are required!" })
     }
 
     try {
@@ -58,13 +58,13 @@ export const Login = async (req, res) => {
         const existingUser = await UserModel.findOne({ email })
 
         if (!existingUser) {
-            return res.status(400).json({ message: "Invalid email!" })
+            return res.status(400).json({ success: false, message: "Invalid email!" })
         }
 
         const isMatch = await bcrypt.compare(password, existingUser.password)
 
         if (!isMatch) {
-            return res.status(404).json({ message: "Invalid Password!" })
+            return res.status(404).json({ success: false, message: "Invalid Password!" })
         }
 
 
@@ -74,11 +74,11 @@ export const Login = async (req, res) => {
             const LawyerProfile = await LawyerProfileModel.findOne({userId: existingUser._id});
 
             if(!LawyerProfile){
-                return res.status(400).json({ message: "Please Complete your profile!" })
+                return res.status(400).json({ success: false, message: "Please Complete your profile!" })
             }
 
             if(LawyerProfile.status !== "APPROVED"){
-                return res.status(400).json({ message: `Status: ${LawyerProfile.status}. Please contact to admin department.` })
+                return res.status(400).json({ success: false, message: `Status: ${LawyerProfile.status}. Please contact to admin department.` })
             }
 
         }
@@ -86,6 +86,7 @@ export const Login = async (req, res) => {
 
         res.status(200).json({
             message: "Login Successfully!",
+            success: true,
             token: generateToken(existingUser._id, existingUser.email),
             result: {
                 _id: existingUser._id,
