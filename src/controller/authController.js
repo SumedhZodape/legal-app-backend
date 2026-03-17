@@ -10,14 +10,14 @@ export const Register = async (req, res) => {
     let { name, email, Phone, password, role } = req.body;
 
     if (!name || !email || !Phone || !password || !role) {
-        return res.status(400).json({ message: "All fileds are required!" })
+        return res.status(400).json({ success: false, message: "All fileds are required!" })
     }
 
     try {
         const existingUser = await UserModel.findOne({ email: email });
 
         if (existingUser) {
-            return res.status(400).json({ message: "User already exist!" })
+            return res.status(400).json({ success: false, message: "User already exist!" })
         }
 
         const user = await UserModel.create({
@@ -30,6 +30,7 @@ export const Register = async (req, res) => {
 
         res.status(201).json({
             message: "User Registered successfully!",
+            success: true,
             result: {
                 _id: user._id,
                 name,
@@ -58,7 +59,7 @@ export const Login = async (req, res) => {
         const existingUser = await UserModel.findOne({ email })
 
         if (!existingUser) {
-            return res.status(400).json({ success: false, message: "Invalid email!" })
+            return res.status(404).json({ success: false, message: "Invalid email!" })
         }
 
         const isMatch = await bcrypt.compare(password, existingUser.password)
