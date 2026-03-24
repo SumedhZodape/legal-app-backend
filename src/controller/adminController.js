@@ -4,11 +4,14 @@ import { sendMail } from '../utils/mail.js'
 
 export const GetAllLawyers = async (req, res) => {
     try {
-        const users = await LawyerProfileModel.find();
+        const users = await LawyerProfileModel.find().populate({
+          path:'userId',
+          select: '-password -__v'
+        }).select('-__v');
 
-        res.status(200).json({ result: users, message: "Fetched Lawyers!" })
+        res.status(200).json({ success: true, result: users, message: "Fetched Lawyers!" })
     } catch (error) {
-        res.status(500).json({ message: "Server Error!" })
+        res.status(500).json({ success:false, message: "Server Error!" })
     }
 }
 
