@@ -97,10 +97,10 @@ export const UpdateLawyerStatus = async (req, res) => {
         `;
         await sendMail(user.email, subject, plainText, htmlTemplate);
 
-        res.status(200).json({ result: lawyerProfile, message: `Status updated to: ${status}` })
+        res.status(200).json({ success:true, result: lawyerProfile, message: `Status updated to: ${status}` })
 
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: "Server Error!", error })
+        res.status(500).json({ success: false, message: "Server Error!", error })
     }
 }
