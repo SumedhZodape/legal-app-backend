@@ -3,7 +3,7 @@ import ClientCaseModel from "../models/ClientCase.js";
 import AianalysisModel from "../models/Aianalysis.js";
 import LawyerProfileModel from "../models/LawyerProfile.js";
 
-
+// testing
 export const AITest = async (req, res) => {
 
     const { prompt } = req.body;
@@ -149,4 +149,18 @@ export const CreateCase = async (req, res) => {
 
 
 
+}
+
+export const MyCases = async (req, res) =>{
+    try {
+        
+        const userID = req.user;
+
+        const cases = await ClientCaseModel.find({userId: userID });
+
+        res.status(200).json({ success: true, result: cases })
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error!" })
+    }
 }
