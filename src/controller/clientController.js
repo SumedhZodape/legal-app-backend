@@ -12,7 +12,7 @@ export const AITest = async (req, res) => {
 
     try {
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyD7l1lIxb9SrdyzdwzoY35aYoti_0goRog",
+            apiKey: "AIzaSyD5-oRVM4ddgS8eBWCoERRr_mk3i92OmUU",
         });
 
 
@@ -43,7 +43,7 @@ export const CreateCase = async (req, res) => {
     try {
 
         if (problemStatement?.trim() === "") {
-            return res.status(400).json({ message: "Problem statement is required!" })
+            return res.status(400).json({ success: false, message: "Problem statement is required!" })
         }
 
 
@@ -74,7 +74,7 @@ export const CreateCase = async (req, res) => {
         console.log("Request is coming")
 
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyAZWXofR8pwVzjmpgkm8jv7OOXdN6L93QE",
+            apiKey: "AIzaSyD5-oRVM4ddgS8eBWCoERRr_mk3i92OmUU",
         });
 
         const promt =`
@@ -139,12 +139,12 @@ export const CreateCase = async (req, res) => {
             suggestedLawyers: mapData
         })
 
-        res.status(200).json({message:"Case has been created", result: parsedRes, caseInfo, lawyersData})
+        res.status(200).json({ success: true, message:"Case has been created", result: parsedRes, caseInfo, lawyersData})
 
 
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: "Server Error!" })
+        res.status(500).json({ success: false, message: "Server Error!" })
     }
 
 
