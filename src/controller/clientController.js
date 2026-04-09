@@ -39,7 +39,7 @@ export const CreateCase = async (req, res) => {
 
     const userId = req.user;
     const { problemStatement, location, caseDate } = req.body;
-    
+
     try {
 
         if (problemStatement?.trim() === "") {
@@ -51,8 +51,8 @@ export const CreateCase = async (req, res) => {
 
         let proofFiles = []
 
-        if(req.files && req.files.length > 0){
-            proofFiles = req.files?.map(ele=>({
+        if (req.files && req.files.length > 0) {
+            proofFiles = req.files?.map(ele => ({
                 fileName: ele.originalname,
                 fileURL: `uploads/${ele.filename}`
             }))
@@ -61,7 +61,7 @@ export const CreateCase = async (req, res) => {
         console.log("proofFiles", proofFiles)
 
 
-        
+
 
         const caseInfo = await ClientCaseModel.create({
             userId,
@@ -77,7 +77,7 @@ export const CreateCase = async (req, res) => {
             apiKey: "AIzaSyD5-oRVM4ddgS8eBWCoERRr_mk3i92OmUU",
         });
 
-        const promt =`
+        const promt = `
         Analyze the legal case belowand return STRICT JSON only.
         
         Problem: "${problemStatement}",
@@ -104,7 +104,7 @@ export const CreateCase = async (req, res) => {
             },
         });
 
-        console.log(response) 
+        console.log(response)
 
         const aiResponse = response?.candidates[0]?.content?.parts[0]?.text;
         const parsedRes = JSON.parse(aiResponse)
@@ -118,14 +118,14 @@ export const CreateCase = async (req, res) => {
             status: "APPROVED",
             feeMin: { $lte: parsedRes?.estimatedFeeMax },
             feeMax: { $gte: parsedRes?.estimatedFeeMin }
-        }).sort({wonCases: -1}).limit(5).select("userId")
+        }).sort({ wonCases: -1 }).limit(5).select("userId")
 
 
         console.log(lawyersData)
 
-        const mapData = lawyersData?.map((ele)=>ele.userId)
+        const mapData = lawyersData?.map((ele) => ele.userId)
 
-      
+
 
         const aiInfo = await AianalysisModel.create({
             clientCaseId: caseInfo._id,
@@ -139,7 +139,7 @@ export const CreateCase = async (req, res) => {
             suggestedLawyers: mapData
         })
 
-        res.status(200).json({ success: true, message:"Case has been created", result: parsedRes, caseInfo, lawyersData})
+        res.status(200).json({ success: true, message: "Case has been created", result: parsedRes, caseInfo, lawyersData })
 
 
     } catch (error) {
@@ -151,14 +151,24 @@ export const CreateCase = async (req, res) => {
 
 }
 
-export const MyCases = async (req, res) =>{
+export const MyCases = async (req, res) => {
     try {
-        
+
         const userID = req.user;
 
-        const cases = await ClientCaseModel.find({userId: userID });
+        const cases = await ClientCaseModel.find({ userId: userID }).populate('userId');
 
-        res.status(200).json({ success: true, result: cases })
+        const result = await Promise.all(
+            cases.map(async (c) => {
+                const analysis = await AianalysisModel.findOne({ clientCaseId: c._id });
+                return {
+                    ...c.toObject(),
+                    aiAnalysis: analysis
+                };
+            })
+        );
+
+        res.status(200).json({ success: true, result: result })
 
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error!" })
