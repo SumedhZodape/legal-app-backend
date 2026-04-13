@@ -47,6 +47,10 @@ const ClientCaseSchema = new mongoose.Schema(
             type: String,
             enum:["NEW", "ONGOING", "COMPLETED"],
             default: "NEW"
+        },
+        lawyerType: {
+            type: String,
+            required: true
         }
     }, 
     { timestamps: true }

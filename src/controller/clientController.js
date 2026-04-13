@@ -12,7 +12,7 @@ export const AITest = async (req, res) => {
 
     try {
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyD5-oRVM4ddgS8eBWCoERRr_mk3i92OmUU",
+            apiKey: "AIzaSyADnsGhIoIcopUoEby3On4Hb3DH5bKqf-s",
         });
 
 
@@ -63,18 +63,12 @@ export const CreateCase = async (req, res) => {
 
 
 
-        const caseInfo = await ClientCaseModel.create({
-            userId,
-            problemStatement,
-            location,
-            caseDate,
-            proofFiles
-        })
+
 
         console.log("Request is coming")
 
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyD5-oRVM4ddgS8eBWCoERRr_mk3i92OmUU",
+            apiKey: "AIzaSyADnsGhIoIcopUoEby3On4Hb3DH5bKqf-s",
         });
 
         const promt = `
@@ -110,21 +104,36 @@ export const CreateCase = async (req, res) => {
         const parsedRes = JSON.parse(aiResponse)
 
 
+        const caseInfo = await ClientCaseModel.create({
+            userId,
+            problemStatement,
+            location,
+            caseDate,
+            proofFiles,
+            lawyerType: parsedRes?.TypeOfLawyerNeeded
+        })
+
         /// find out the lawyers list
-
-
         const lawyersData = await LawyerProfileModel.find({
             lawyerType: parsedRes?.TypeOfLawyerNeeded,
             status: "APPROVED",
-            feeMin: { $lte: parsedRes?.estimatedFeeMax },
-            feeMax: { $gte: parsedRes?.estimatedFeeMin }
-        }).sort({ wonCases: -1 }).limit(5).select("userId")
+            $or: [
+                { feeMin: { $lte: parsedRes?.estimatedFeeMax } },
+                { feeMax: { $gte: parsedRes?.estimatedFeeMin } }
+            ]
+        }).sort({ wonCases: -1 }).limit(5).populate('userId')
 
 
         console.log(lawyersData)
 
-        const mapData = lawyersData?.map((ele) => ele.userId)
+        const mapData = lawyersData?.map((ele) => ele.userId?._id)
 
+        const returnedLawyer = lawyersData?.map((ele)=>{
+            return {
+                value: ele.userId?._id,
+                label: ele.userId?.name
+            }
+        })
 
 
         const aiInfo = await AianalysisModel.create({
@@ -139,7 +148,7 @@ export const CreateCase = async (req, res) => {
             suggestedLawyers: mapData
         })
 
-        res.status(200).json({ success: true, message: "Case has been created", result: parsedRes, caseInfo, lawyersData })
+        res.status(200).json({ success: true, message: "Case has been created", result: parsedRes, caseInfo, lawyersData:returnedLawyer })
 
 
     } catch (error) {
@@ -160,7 +169,10 @@ export const MyCases = async (req, res) => {
 
         const result = await Promise.all(
             cases.map(async (c) => {
-                const analysis = await AianalysisModel.findOne({ clientCaseId: c._id });
+                const analysis = await AianalysisModel.findOne({ clientCaseId: c._id }).populate({
+                    path: "suggestedLawyers",
+                    select: "name" 
+                });
                 return {
                     ...c.toObject(),
                     aiAnalysis: analysis
