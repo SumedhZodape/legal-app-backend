@@ -7,18 +7,9 @@ const CliendtLawyerTrackSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref:"Clientcase"
         },
-        clientId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref:"User"
-        },
         lawyerId :{
             type: mongoose.Schema.Types.ObjectId,
             ref:"User"
-        },
-        requestStatus: {
-            type: String,
-            enum: ["PENDING", "ACCEPTED", "REJECTED", "EXPIRED"],
-            default: "PENDING"
         },
         lawyerResponse: {
             type: String

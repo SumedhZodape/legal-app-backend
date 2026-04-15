@@ -1,16 +1,17 @@
 import express from 'express';
 import Protect from '../middlewares/authMiddleware.js';
-import {AITest , CreateCase, MyCases} from '../controller/clientController.js'
+import { CreateCase, MyCases, UpdateCase} from '../controller/clientController.js'
 import upload from '../middlewares/uploadMiddlewar.js';
 
 const router = express.Router()
 
 
-router.get("/aitest", Protect, AITest);
-
 router.post("/createcase", Protect, upload.array("proofFiles", 2),  CreateCase);
 
-router.get("/mycases", Protect, MyCases)
+router.get("/mycases", Protect, MyCases),
+
+router.put("/updatecase", Protect, UpdateCase);
+
 
 export default router;
 

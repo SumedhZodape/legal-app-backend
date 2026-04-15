@@ -3,36 +3,6 @@ import ClientCaseModel from "../models/ClientCase.js";
 import AianalysisModel from "../models/Aianalysis.js";
 import LawyerProfileModel from "../models/LawyerProfile.js";
 
-// testing
-export const AITest = async (req, res) => {
-
-    const { prompt } = req.body;
-
-    console.log(prompt)
-
-    try {
-        const ai = new GoogleGenAI({
-            apiKey: "AIzaSyADnsGhIoIcopUoEby3On4Hb3DH5bKqf-s",
-        });
-
-
-        const response = await ai.models.generateContent({
-            model: "gemini-3-flash-preview",
-            contents: prompt,
-            config: {
-                systemInstruction: "Please return data in the json format.",
-            },
-        });
-
-        console.log(response)
-
-
-        res.status(200).json({ response })
-    } catch (error) {
-        req.status(500).json({ message: "Server Error" })
-    }
-
-}
 
 
 export const CreateCase = async (req, res) => {
@@ -68,7 +38,7 @@ export const CreateCase = async (req, res) => {
         console.log("Request is coming")
 
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyADnsGhIoIcopUoEby3On4Hb3DH5bKqf-s",
+            apiKey: "AIzaSyD6vTMIhh3y3WZSTgxsKYosOsCzWluLwq4",
         });
 
         const promt = `
@@ -128,7 +98,7 @@ export const CreateCase = async (req, res) => {
 
         const mapData = lawyersData?.map((ele) => ele.userId?._id)
 
-        const returnedLawyer = lawyersData?.map((ele)=>{
+        const returnedLawyer = lawyersData?.map((ele) => {
             return {
                 value: ele.userId?._id,
                 label: ele.userId?.name
@@ -148,7 +118,7 @@ export const CreateCase = async (req, res) => {
             suggestedLawyers: mapData
         })
 
-        res.status(200).json({ success: true, message: "Case has been created", result: parsedRes, caseInfo, lawyersData:returnedLawyer })
+        res.status(200).json({ success: true, message: "Case has been created", result: parsedRes, caseInfo, lawyersData: returnedLawyer })
 
 
     } catch (error) {
@@ -171,7 +141,7 @@ export const MyCases = async (req, res) => {
             cases.map(async (c) => {
                 const analysis = await AianalysisModel.findOne({ clientCaseId: c._id }).populate({
                     path: "suggestedLawyers",
-                    select: "name" 
+                    select: "name"
                 });
                 return {
                     ...c.toObject(),
@@ -184,5 +154,33 @@ export const MyCases = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error!" })
+    }
+}
+
+export const UpdateCase = async (req, res) => {
+    try {
+
+        const user = req.user; // client ID
+
+        const { requestedLawyers, caseId } = req.body;
+
+        if (!caseId){
+            return res.status(400).json({ success: false, message: "Please Pass the Case ID!" })
+        }
+
+        if (requestedLawyers.length === 0) {
+            return res.status(400).json({ success: false, message: "Please Select minimun one Lawyer!" })
+        }
+
+        const caseData = await ClientCaseModel.findById(caseId);
+
+        caseData.requestedLawyers = requestedLawyers;
+
+        caseData.save();
+
+        return res.status(201).json({ success: true, message: "Lawyers added successfully!" })
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Server Error!" })
     }
 }

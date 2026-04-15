@@ -29,14 +29,6 @@ const ClientCaseSchema = new mongoose.Schema(
                } 
             }
         ],
-        opponentLawyer: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        },
-        assignedLawyer: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        }, 
         requestedLawyers: [
             {
                 type: mongoose.Schema.Types.ObjectId,
@@ -45,7 +37,7 @@ const ClientCaseSchema = new mongoose.Schema(
         ],
         caseStatus: {
             type: String,
-            enum:["NEW", "ONGOING", "COMPLETED"],
+            enum:["NEW", "ONGOING", "STOPPED", "COMPLETED"],
             default: "NEW"
         },
         lawyerType: {
