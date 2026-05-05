@@ -38,7 +38,7 @@ export const CreateCase = async (req, res) => {
         console.log("Request is coming")
 
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyD6vTMIhh3y3WZSTgxsKYosOsCzWluLwq4",
+            apiKey: process.env.GCP_API_KEY,
         });
 
         const promt = `
