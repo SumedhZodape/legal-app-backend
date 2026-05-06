@@ -70,7 +70,7 @@ export const getCases = async (req, res) => {
             cases.map(async (c) => {
                 const track = await ClientlawyertrackModel.findOne({ caseId: c._id })
 
-                if (track && track.lawyerId.toString === lawyerID.toString()) {
+                if (track && track.lawyerId.toString() === lawyerID.toString()) {
 
                     const analysis = await AianalysModel.findOne({ clientCaseId: c._id })
 
@@ -122,7 +122,7 @@ export const getCases = async (req, res) => {
 export const AcceptRequest = async (req, res)=>{
     try {
         const caseID = req.params.caseID;
-        const {lawyerResponse}= req.body;
+        const {lawyerResponse, status}= req.body;
 
         const track = await ClientlawyertrackModel.create(
             {
@@ -135,11 +135,11 @@ export const AcceptRequest = async (req, res)=>{
         const updateCaseStatus = await ClinetCaseModel.findById(caseID)
 
         
-        updateCaseStatus.caseStatus = "ONGOING";
+        updateCaseStatus.caseStatus = status;
 
         await updateCaseStatus.save();
 
-        return res.status(201).json({success: true, message: "Request has been accepted!"})
+        return res.status(201).json({success: true, message: "Request has been accepted! "+status})
 
     } catch (error) {
         console.log(error)

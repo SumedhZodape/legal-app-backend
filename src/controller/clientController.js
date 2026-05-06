@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import ClientCaseModel from "../models/ClientCase.js";
 import AianalysisModel from "../models/Aianalysis.js";
 import LawyerProfileModel from "../models/LawyerProfile.js";
+import ClinetCaseModel from '../models/ClientCase.js'
 
 
 
@@ -182,5 +183,25 @@ export const UpdateCase = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ success: false, message: "Server Error!" })
+    }
+}
+
+
+export const UpdateStatus = async (req, res)=>{
+    try {
+        const caseID = req.params.caseID;
+        const {status}= req.body;
+        
+        const updateCaseStatus = await ClinetCaseModel.findById(caseID)
+        
+        updateCaseStatus.caseStatus = status;
+
+        await updateCaseStatus.save();
+
+        return res.status(201).json({success: true, message: `Case has been updated: ${status}!`})
+
+    } catch (error) {
+        console.log(error)
+         return res.status(500).json({ success: false, message: "Server Error!" })
     }
 }
