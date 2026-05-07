@@ -10,6 +10,6 @@ connectDB()
 
 
 // server
-app.listen(8000, ()=>{
+app.listen(3000, ()=>{
     console.log("SERVER IS RUNNING...")
 })

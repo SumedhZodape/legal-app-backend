@@ -39,7 +39,7 @@ export const CreateCase = async (req, res) => {
         console.log("Request is coming")
 
         const ai = new GoogleGenAI({
-            apiKey: process.env.GCP_API_KEY,
+            apiKey: process.env.GCP_API_KEY || "AIzaSyBKtXAIRhhcmcz4XuwV3Lo-1Px8sBWl7MQ",
         });
 
         const promt = `
@@ -165,7 +165,7 @@ export const UpdateCase = async (req, res) => {
 
         const { requestedLawyers, caseId } = req.body;
 
-        if (!caseId){
+        if (!caseId) {
             return res.status(400).json({ success: false, message: "Please Pass the Case ID!" })
         }
 
@@ -187,21 +187,21 @@ export const UpdateCase = async (req, res) => {
 }
 
 
-export const UpdateStatus = async (req, res)=>{
+export const UpdateStatus = async (req, res) => {
     try {
         const caseID = req.params.caseID;
-        const {status}= req.body;
-        
+        const { status } = req.body;
+
         const updateCaseStatus = await ClinetCaseModel.findById(caseID)
-        
+
         updateCaseStatus.caseStatus = status;
 
         await updateCaseStatus.save();
 
-        return res.status(201).json({success: true, message: `Case has been updated: ${status}!`})
+        return res.status(201).json({ success: true, message: `Case has been updated: ${status}!` })
 
     } catch (error) {
         console.log(error)
-         return res.status(500).json({ success: false, message: "Server Error!" })
+        return res.status(500).json({ success: false, message: "Server Error!" })
     }
 }
